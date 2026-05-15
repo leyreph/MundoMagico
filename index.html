@@ -132,6 +132,36 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;overf
 
 .timeup{display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:var(--coral);color:white;font-family:'Fredoka One',cursive;font-size:22px;text-align:center;padding:13px;box-shadow:0 4px 16px rgba(0,0,0,.3);animation:slideD .4s ease;}
 @keyframes slideD{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+
+/* ===== Word Builder ===== */
+.wb-emoji{text-align:center;font-size:58px;margin-bottom:2px;}
+.wb-hint{text-align:center;font-size:13px;font-weight:700;color:#888;margin-bottom:6px;}
+.wb-slots{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin:10px 0;}
+.wb-slot{width:40px;height:46px;border-radius:11px;border:3px dashed #ccc;background:#f9f9f9;display:flex;align-items:center;justify-content:center;font-family:'Fredoka One',cursive;font-size:22px;color:#333;transition:all .2s;}
+.wb-slot.filled{border-color:var(--sky);background:#EBF8FF;animation:popIn .2s ease;}
+.wb-slot.correct{border-color:var(--mint);background:#EAFFF4;}
+.wb-slot.wrong{border-color:var(--coral);background:#FFF0F0;}
+.wb-letters{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0;}
+.wb-letter{width:44px;height:44px;border-radius:11px;border:3px solid var(--sky);background:linear-gradient(135deg,#EBF8FF,#CBF3F0);font-family:'Fredoka One',cursive;font-size:22px;cursor:pointer;color:var(--sky);transition:all .2s;}
+.wb-letter:hover{transform:scale(1.1);background:var(--sky);color:white;}
+.wb-letter:disabled{opacity:.35;cursor:default;transform:none;}
+/* ===== Word Search ===== */
+.ws-grid{display:inline-grid;gap:3px;margin:6px auto;}
+.ws-cell{width:32px;height:32px;border-radius:7px;border:2px solid #e0e0e0;background:#f9f9f9;font-family:'Fredoka One',cursive;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#444;transition:all .15s;user-select:none;-webkit-user-select:none;}
+.ws-cell:hover{background:#EBF8FF;border-color:var(--sky);}
+.ws-cell.selecting{background:var(--yellow);border-color:var(--orange);color:#333;}
+.ws-cell.found-0{background:#FF6B6B44;border-color:#FF6B6B;color:#AA0000;font-weight:900;}
+.ws-cell.found-1{background:#06D6A044;border-color:#06D6A0;color:#006644;font-weight:900;}
+.ws-cell.found-2{background:#9B5DE544;border-color:#9B5DE5;color:#660099;font-weight:900;}
+.ws-cell.found-3{background:#FFD16644;border-color:#F77F00;color:#885500;font-weight:900;}
+.ws-cell.found-4{background:#F7258544;border-color:#F72585;color:#990044;font-weight:900;}
+.ws-wordlist{display:flex;gap:7px;flex-wrap:wrap;margin:6px 0;justify-content:center;}
+.ws-word{padding:4px 11px;border-radius:14px;background:#f0f0f0;font-family:'Fredoka One',cursive;font-size:13px;color:#555;transition:all .3s;}
+.ws-word.done{text-decoration:line-through;opacity:.45;background:var(--mint);color:white;}
+/* ===== Math levels ===== */
+.lvl-row{display:flex;gap:7px;margin-bottom:10px;justify-content:center;}
+.lvl-btn{padding:5px 12px;border-radius:12px;border:2px solid var(--sky);background:white;font-family:'Fredoka One',cursive;font-size:13px;cursor:pointer;color:var(--sky);transition:all .2s;}
+.lvl-btn.active{background:var(--sky);color:white;}
 </style>
 </head>
 <body>
@@ -196,7 +226,11 @@ const T={
       princesas:{t:'Princesas',s:'¡El mundo Disney!'},
       heroes:{t:'Superhéroes',s:'¡Salva el mundo!'},
       paw:{t:'Patrulla Canina',s:'¡Sin falta nadie!'},
+      wordbuilder:{t:'Forma Palabras',s:'Construye con letras'},wordsearch:{t:'Sopa de Letras',s:'Encuentra palabras'},
     },
+    wbHint:'Pista:',wbClear:'⌫ Borrar',wbWin:'¡Correcto! 🎉',wbWrong:'¡Casi! Invéntalo otra vez 💪',wbNext:'Siguiente →',
+    wsHint:'Toca celda inicio y celda fin',wsFound:'¡Encontrada! 🎉',wsWin:'¡Las encontraste todas! 🏆',
+    mathLvl1:'⭐ Suma',mathLvl2:'⭐⭐ Resta',mathLvl3:'⭐⭐⭐ Multiplica',
     letterWords:{A:'Árbol 🌳',B:'Barco ⛵',C:'Casa 🏠',D:'Dragón 🐉',E:'Estrella ⭐',F:'Flor 🌸',G:'Gato 🐱',H:'Helado 🍦',I:'Iglú 🏠',J:'Jirafa 🦒',K:'Koala 🐨',L:'León 🦁',M:'Mariposa 🦋',N:'Nube ☁️',Ñ:'Ñoño 😄',O:'Oso 🐻',P:'Pez 🐟',Q:'Queso 🧀',R:'Rana 🐸',S:'Sol ☀️',T:'Tren 🚂',U:'Uva 🍇',V:'Vaca 🐄',W:'Wifi 📶',X:'Xilófono 🎵',Y:'Yogur 🥛',Z:'Zorro 🦊'},
   },
   en:{
@@ -211,7 +245,11 @@ const T={
       princesas:{t:'Princesses',s:'The Disney world!'},
       heroes:{t:'Superheroes',s:'Save the world!'},
       paw:{t:'PAW Patrol',s:'No job too big!'},
+      wordbuilder:{t:'Word Builder',s:'Build with letters'},wordsearch:{t:'Word Search',s:'Find the words'},
     },
+    wbHint:'Hint:',wbClear:'⌫ Clear',wbWin:'Correct! 🎉',wbWrong:'Almost! Try again 💪',wbNext:'Next →',
+    wsHint:'Tap start cell then end cell',wsFound:'Found it! 🎉',wsWin:'You found them all! 🏆',
+    mathLvl1:'⭐ Addition',mathLvl2:'⭐⭐ Subtract',mathLvl3:'⭐⭐⭐ Multiply',
     letterWords:{A:'Apple 🍎',B:'Boat ⛵',C:'Cat 🐱',D:'Dragon 🐉',E:'Elephant 🐘',F:'Flower 🌸',G:'Guitar 🎸',H:'House 🏠',I:'Ice cream 🍦',J:'Jaguar 🐆',K:'Kite 🪁',L:'Lion 🦁',M:'Moon 🌙',N:'Nest 🐣',O:'Octopus 🐙',P:'Pizza 🍕',Q:'Queen 👑',R:'Rainbow 🌈',S:'Sun ☀️',T:'Train 🚂',U:'Umbrella ☂️',V:'Violin 🎻',W:'Whale 🐳',X:'Xylophone 🎵',Y:'Yogurt 🥛',Z:'Zebra 🦓'},
   }
 };
@@ -410,6 +448,8 @@ const baseCards=[
   {id:'games',emoji:'🎮',cls:'c-games'},
   {id:'music',emoji:'🎵',cls:'c-music'},
   {id:'stories',emoji:'📖',cls:'c-stories'},
+  {id:'wordbuilder',emoji:'🔡',cls:'c-letters'},
+  {id:'wordsearch',emoji:'🔍',cls:'c-games'},
 ];
 const extraCards={
   Nerea:[{id:'princesas',emoji:'👸',cls:'c-princesas'}],
@@ -443,6 +483,8 @@ function openMod(sec){
   else if(sec==='princesas')rChars(mc,princesas,'princesas');
   else if(sec==='heroes')rChars(mc,heroes,'heroes');
   else if(sec==='paw')rChars(mc,paw,'paw');
+  else if(sec==='wordbuilder')rWordBuilder(mc);
+  else if(sec==='wordsearch')rWordSearch(mc);
 }
 function closeMod(){document.getElementById('ovl').classList.remove('open');}
 function handleOvl(e){if(e.target===document.getElementById('ovl'))closeMod();}
@@ -460,8 +502,10 @@ function showLetter(l){
   if('speechSynthesis'in window){const u=new SpeechSynthesisUtterance(w.replace(/[^\w\s]/gi,''));u.lang=lang==='es'?'es-ES':'en-US';u.rate=.8;speechSynthesis.speak(u);}
 }
 
+let mathLevel=1;
 function rNumbers(c){
   c.innerHTML=`<div class="nums-wrap">
+    <div class="lvl-row">${[1,2,3].map(l=>`<button class="lvl-btn${l===mathLevel?' active':''}" onclick="setMathLevel(${l},document.getElementById('mcontent'))">${T[lang]['mathLvl'+l]}</button>`).join('')}</div>
     <div class="num-big" id="nbig">1</div>
     <div class="dots" id="ndots"></div>
     <div class="num-grid">${[0,1,2,3,4,5,6,7,8,9,10].map(n=>`<button class="num-btn" onclick="showNum(${n})">${n}</button>`).join('')}</div>
@@ -469,6 +513,7 @@ function rNumbers(c){
   </div>`;
   showNum(1);newMath();
 }
+function setMathLevel(l,c){mathLevel=l;rNumbers(c);}
 function showNum(n){
   const el=document.getElementById('nbig');el.textContent=n;el.style.animation='none';el.offsetHeight;el.style.animation='bounce .4s ease';
   const d=document.getElementById('ndots');d.innerHTML='';
@@ -477,11 +522,14 @@ function showNum(n){
   if('speechSynthesis'in window){const u=new SpeechSynthesisUtterance(String(n));u.lang=lang==='es'?'es-ES':'en-US';speechSynthesis.speak(u);}
 }
 function newMath(){
-  const a=Math.floor(Math.random()*6),b=Math.floor(Math.random()*5);
-  mathAns=a+b;
-  document.getElementById('mq').textContent=`${a} + ${b} = ?`;
+  let a,b,op='+',maxR=15;
+  if(mathLevel===1){a=Math.floor(Math.random()*6);b=Math.floor(Math.random()*5);op='+';mathAns=a+b;maxR=11;}
+  else if(mathLevel===2){a=Math.floor(Math.random()*11)+4;b=Math.floor(Math.random()*(a+1));op='−';mathAns=a-b;maxR=15;}
+  else{a=Math.floor(Math.random()*5)+2;b=Math.floor(Math.random()*6)+1;op='×';mathAns=a*b;maxR=30;}
+  document.getElementById('mq').textContent=`${a} ${op} ${b} = ?`;
   document.getElementById('mf').textContent='';
-  const opts=[mathAns];while(opts.length<3){const r=Math.floor(Math.random()*12);if(!opts.includes(r))opts.push(r);}
+  const opts=[mathAns];
+  while(opts.length<4){const r=Math.floor(Math.random()*(maxR+1));if(!opts.includes(r))opts.push(r);}
   opts.sort(()=>Math.random()-.5);
   document.getElementById('mo').innerHTML=opts.map(o=>`<button class="math-o" onclick="chkMath(this,${o})">${o}</button>`).join('');
 }
@@ -631,6 +679,184 @@ function showStory(c){
       <button class="s-btn pri" onclick="storyIdx++;showStory(document.getElementById('mcontent'))">${T[lang].nextstory}</button>
     </div>
   </div>`;
+}
+
+
+// ===== WORD BUILDER =====
+const wbWords={
+  es:[
+    {word:'GATO',emoji:'🐱',hint:'Hace miau'},
+    {word:'PATO',emoji:'🦆',hint:'Le gusta el agua'},
+    {word:'LUNA',emoji:'🌙',hint:'Brilla de noche'},
+    {word:'CASA',emoji:'🏠',hint:'Vives aquí'},
+    {word:'RANA',emoji:'🐸',hint:'Salta y croa'},
+    {word:'TREN',emoji:'🚂',hint:'Va por raíles'},
+    {word:'NUBE',emoji:'☁️',hint:'Flota en el cielo'},
+    {word:'OSO',emoji:'🐻',hint:'Le encanta la miel'},
+    {word:'ROSA',emoji:'🌹',hint:'Flor bonita'},
+    {word:'SOL',emoji:'☀️',hint:'Calienta el día'},
+    {word:'MAR',emoji:'🌊',hint:'Agua salada'},
+    {word:'PINO',emoji:'🌲',hint:'Árbol verde con piñas'},
+  ],
+  en:[
+    {word:'CAT',emoji:'🐱',hint:'Says meow'},
+    {word:'DUCK',emoji:'🦆',hint:'Loves water'},
+    {word:'MOON',emoji:'🌙',hint:'Shines at night'},
+    {word:'FROG',emoji:'🐸',hint:'Jumps and croaks'},
+    {word:'BEAR',emoji:'🐻',hint:'Loves honey'},
+    {word:'FISH',emoji:'🐟',hint:'Lives in water'},
+    {word:'STAR',emoji:'⭐',hint:'Twinkles in the sky'},
+    {word:'RAIN',emoji:'🌧️',hint:'Falls from clouds'},
+    {word:'TREE',emoji:'🌲',hint:'Tall and green'},
+    {word:'SUN',emoji:'☀️',hint:'Warms the day'},
+    {word:'SEA',emoji:'🌊',hint:'Salty water'},
+    {word:'BIRD',emoji:'🐦',hint:'Flies in the sky'},
+  ]
+};
+let wbCurrent=null,wbTyped=[],wbWordIdx=0;
+function rWordBuilder(c){wbWordIdx=Math.floor(Math.random()*wbWords[lang].length);startWbWord(c);}
+function startWbWord(c){
+  const set=wbWords[lang];
+  wbCurrent=set[wbWordIdx%set.length];
+  wbTyped=[];
+  const shuffled=[...wbCurrent.word].sort(()=>Math.random()-.5);
+  c.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;gap:6px" class="fade-in">'
+    +'<div class="wb-emoji">'+wbCurrent.emoji+'</div>'
+    +'<div class="wb-hint">'+T[lang].wbHint+' '+wbCurrent.hint+'</div>'
+    +'<div class="wb-slots" id="wbslots">'+wbCurrent.word.split('').map((_,i)=>'<div class="wb-slot" id="wbs'+i+'"></div>').join('')+'</div>'
+    +'<div class="wb-letters" id="wbletters">'+shuffled.map((l,i)=>'<button class="wb-letter" id="wbl'+i+'" onclick="wbPick(''+l+'','+i+')">'+l+'</button>').join('')+'</div>'
+    +'<div style="display:flex;gap:9px;margin-top:2px">'
+    +'<button onclick="wbClear()" style="padding:8px 16px;border-radius:12px;background:#f0f0f0;border:none;cursor:pointer;font-family:'Fredoka One',cursive;font-size:14px">'+T[lang].wbClear+'</button>'
+    +'</div>'
+    +'<div id="wbfb" style="font-family:'Fredoka One',cursive;font-size:20px;min-height:30px;text-align:center"></div>'
+    +'<div id="wbnxt" style="display:none;margin-top:4px">'
+    +'<button onclick="wbWordIdx++;startWbWord(document.getElementById('mcontent'))" style="padding:10px 20px;border-radius:13px;background:linear-gradient(135deg,var(--mint),var(--sky));color:white;border:none;cursor:pointer;font-family:'Fredoka One',cursive;font-size:15px">'+T[lang].wbNext+'</button>'
+    +'</div></div>';
+}
+function wbPick(l,btnIdx){
+  if(wbTyped.length>=wbCurrent.word.length)return;
+  const pos=wbTyped.length;
+  wbTyped.push({l,btnIdx});
+  const slot=document.getElementById('wbs'+pos);
+  if(slot){slot.textContent=l;slot.classList.add('filled');}
+  const btn=document.getElementById('wbl'+btnIdx);if(btn)btn.disabled=true;
+  if(wbTyped.length===wbCurrent.word.length)checkWbWord();
+}
+function checkWbWord(){
+  const guess=wbTyped.map(x=>x.l).join('');
+  const fb=document.getElementById('wbfb');
+  if(guess===wbCurrent.word){
+    document.querySelectorAll('.wb-slot').forEach(s=>s.classList.add('correct'));
+    if(fb){fb.textContent=T[lang].wbWin;fb.style.color='var(--mint)';}
+    const nxt=document.getElementById('wbnxt');if(nxt)nxt.style.display='block';
+  }else{
+    document.querySelectorAll('.wb-slot').forEach(s=>s.classList.add('wrong'));
+    if(fb){fb.textContent=T[lang].wbWrong;fb.style.color='var(--coral)';}
+    setTimeout(()=>wbClear(),1100);
+  }
+}
+function wbClear(){
+  wbTyped=[];
+  document.querySelectorAll('.wb-slot').forEach(s=>{s.textContent='';s.className='wb-slot';});
+  document.querySelectorAll('.wb-letter').forEach(b=>b.disabled=false);
+  const fb=document.getElementById('wbfb');if(fb)fb.textContent='';
+  const nxt=document.getElementById('wbnxt');if(nxt)nxt.style.display='none';
+}
+
+// ===== WORD SEARCH =====
+const wsWordsPool={
+  es:['GATO','LUNA','PATO','RANA','OSO','SOL','MAR','PINO','ROSA','TREN'],
+  en:['CAT','MOON','DUCK','FROG','BEAR','SUN','SEA','FISH','RAIN','TREE']
+};
+const wsEmojis={
+  es:{GATO:'🐱',LUNA:'🌙',PATO:'🦆',RANA:'🐸',OSO:'🐻',SOL:'☀️',MAR:'🌊',PINO:'🌲',ROSA:'🌹',TREN:'🚂'},
+  en:{CAT:'🐱',MOON:'🌙',DUCK:'🦆',FROG:'🐸',BEAR:'🐻',SUN:'☀️',SEA:'🌊',FISH:'🐟',RAIN:'🌧️',TREE:'🌲'}
+};
+let wsGD=null,wsFound=[],wsStart=null;
+const WS=8,WS_N=5;
+function generateWsGrid(words){
+  const grid=Array.from({length:WS},()=>Array(WS).fill(''));
+  const placed=[];
+  for(const word of words){
+    let ok=false,tries=0;
+    while(!ok&&tries<300){
+      tries++;
+      const h=Math.random()>.5;
+      const r=h?Math.floor(Math.random()*WS):Math.floor(Math.random()*(WS-word.length));
+      const c=h?Math.floor(Math.random()*(WS-word.length)):Math.floor(Math.random()*WS);
+      const cells=[];let can=true;
+      for(let i=0;i<word.length;i++){
+        const rr=h?r:r+i,cc=h?c+i:c;
+        if(grid[rr][cc]!==''&&grid[rr][cc]!==word[i]){can=false;break;}
+        cells.push({r:rr,c:cc});
+      }
+      if(can){cells.forEach(({r:rr,c:cc},i)=>grid[rr][cc]=word[i]);placed.push({word,cells});ok=true;}
+    }
+  }
+  const alpha='ABCDEFGHIJKLMNOPRSTUVZ';
+  for(let r=0;r<WS;r++)for(let c=0;c<WS;c++)if(grid[r][c]==='')grid[r][c]=alpha[Math.floor(Math.random()*alpha.length)];
+  return{grid,placed};
+}
+function rWordSearch(c){
+  wsFound=[];wsStart=null;
+  const pool=[...wsWordsPool[lang]].sort(()=>Math.random()-.5).slice(0,WS_N);
+  wsGD=generateWsGrid(pool);
+  const em=wsEmojis[lang];
+  let html='<div style="display:flex;flex-direction:column;align-items:center;gap:6px" class="fade-in">';
+  html+='<div class="ws-wordlist" id="wswl">'+wsGD.placed.map(p=>'<div class="ws-word" id="wsw-'+p.word+'">'+(em[p.word]||'')+' '+p.word+'</div>').join('')+'</div>';
+  html+='<div style="font-size:11px;font-weight:700;color:#aaa;margin-bottom:2px">'+T[lang].wsHint+'</div>';
+  html+='<div class="ws-grid" style="grid-template-columns:repeat('+WS+',32px)" id="wsgrid"></div>';
+  html+='<div id="wsfb" style="font-family:'Fredoka One',cursive;font-size:17px;min-height:26px;text-align:center"></div>';
+  html+='<div id="wswin" style="display:none;text-align:center;padding:12px">';
+  html+='<div style="font-size:64px">🏆</div>';
+  html+='<div style="font-family:'Fredoka One',cursive;font-size:22px;color:var(--purple)">'+T[lang].wsWin+'</div>';
+  html+='<button onclick="rWordSearch(document.getElementById('mcontent'))" style="margin-top:10px;padding:10px 20px;border-radius:13px;background:var(--purple);color:white;border:none;cursor:pointer;font-family:'Fredoka One',cursive;font-size:15px">'+T[lang].newgame+' 🔄</button>';
+  html+='</div></div>';
+  c.innerHTML=html;
+  const grid=document.getElementById('wsgrid');
+  for(let r=0;r<WS;r++)for(let cc=0;cc<WS;cc++){
+    const btn=document.createElement('div');
+    btn.className='ws-cell';btn.textContent=wsGD.grid[r][cc];
+    btn.dataset.r=r;btn.dataset.c=cc;
+    btn.addEventListener('click',()=>wsClick(r,cc));
+    grid.appendChild(btn);
+  }
+}
+function wsClick(r,cc){
+  const el=document.querySelector('[data-r="'+r+'"][data-c="'+cc+'"]');
+  if(!el)return;
+  if(!wsStart){
+    document.querySelectorAll('.ws-cell.selecting').forEach(e=>e.classList.remove('selecting'));
+    wsStart={r,c:cc};el.classList.add('selecting');
+  }else{
+    const{r:r0,c:c0}=wsStart;wsStart=null;
+    document.querySelectorAll('.ws-cell.selecting').forEach(e=>e.classList.remove('selecting'));
+    if(r===r0&&cc===c0)return;
+    let cells=[];
+    if(r===r0){const step=cc>c0?1:-1;for(let col=c0;col!==(cc+step);col+=step)cells.push({r,c:col});}
+    else if(cc===c0){const step=r>r0?1:-1;for(let row=r0;row!==(r+step);row+=step)cells.push({r:row,c:cc});}
+    else return;
+    const word=cells.map(({r:rr,c:cc2})=>wsGD.grid[rr][cc2]).join('');
+    const rev=[...word].reverse().join('');
+    const hit=wsGD.placed.find(p=>p.word===word||p.word===rev);
+    if(hit&&!wsFound.includes(hit.word)){
+      wsFound.push(hit.word);
+      const ci=(wsFound.length-1)%5;
+      hit.cells.forEach(({r:rr,c:cc2})=>{
+        const e2=document.querySelector('[data-r="'+rr+'"][data-c="'+cc2+'"]');
+        if(e2)e2.className='ws-cell found-'+ci;
+      });
+      const wEl=document.getElementById('wsw-'+hit.word);if(wEl)wEl.classList.add('done');
+      const fb=document.getElementById('wsfb');
+      if(fb){fb.textContent=T[lang].wsFound;setTimeout(()=>{if(fb)fb.textContent='';},1200);}
+      if(wsFound.length===wsGD.placed.length){
+        setTimeout(()=>{
+          const win=document.getElementById('wswin');if(win)win.style.display='block';
+          const g=document.getElementById('wsgrid');if(g)g.style.opacity='.5';
+        },600);
+      }
+    }
+  }
 }
 
 selUser('Nerea');
