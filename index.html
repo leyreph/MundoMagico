@@ -231,6 +231,7 @@ const T={
     wbHint:'Pista:',wbClear:'⌫ Borrar',wbWin:'¡Correcto! 🎉',wbWrong:'¡Casi! Invéntalo otra vez 💪',wbNext:'Siguiente →',
     wsHint:'Toca celda inicio y celda fin',wsFound:'¡Encontrada! 🎉',wsWin:'¡Las encontraste todas! 🏆',
     mathLvl1:'⭐ Suma',mathLvl2:'⭐⭐ Resta',mathLvl3:'⭐⭐⭐ Multiplica',
+    mathLevelUp:'🚀 ¡Subiste de nivel!',mathMax:'🏆 ¡Eres un crack!',
     letterWords:{A:'Árbol 🌳',B:'Barco ⛵',C:'Casa 🏠',D:'Dragón 🐉',E:'Estrella ⭐',F:'Flor 🌸',G:'Gato 🐱',H:'Helado 🍦',I:'Iglú 🏠',J:'Jirafa 🦒',K:'Koala 🐨',L:'León 🦁',M:'Mariposa 🦋',N:'Nube ☁️',Ñ:'Ñoño 😄',O:'Oso 🐻',P:'Pez 🐟',Q:'Queso 🧀',R:'Rana 🐸',S:'Sol ☀️',T:'Tren 🚂',U:'Uva 🍇',V:'Vaca 🐄',W:'Wifi 📶',X:'Xilófono 🎵',Y:'Yogur 🥛',Z:'Zorro 🦊'},
   },
   en:{
@@ -250,6 +251,7 @@ const T={
     wbHint:'Hint:',wbClear:'⌫ Clear',wbWin:'Correct! 🎉',wbWrong:'Almost! Try again 💪',wbNext:'Next →',
     wsHint:'Tap start cell then end cell',wsFound:'Found it! 🎉',wsWin:'You found them all! 🏆',
     mathLvl1:'⭐ Addition',mathLvl2:'⭐⭐ Subtract',mathLvl3:'⭐⭐⭐ Multiply',
+    mathLevelUp:'🚀 Level up!',mathMax:'🏆 You are a genius!',
     letterWords:{A:'Apple 🍎',B:'Boat ⛵',C:'Cat 🐱',D:'Dragon 🐉',E:'Elephant 🐘',F:'Flower 🌸',G:'Guitar 🎸',H:'House 🏠',I:'Ice cream 🍦',J:'Jaguar 🐆',K:'Kite 🪁',L:'Lion 🦁',M:'Moon 🌙',N:'Nest 🐣',O:'Octopus 🐙',P:'Pizza 🍕',Q:'Queen 👑',R:'Rainbow 🌈',S:'Sun ☀️',T:'Train 🚂',U:'Umbrella ☂️',V:'Violin 🎻',W:'Whale 🐳',X:'Xylophone 🎵',Y:'Yogurt 🥛',Z:'Zebra 🦓'},
   }
 };
@@ -475,7 +477,7 @@ function openMod(sec){
   const mc=document.getElementById('mcontent');
   mc.innerHTML='';mc.className='fade-in';
   if(sec==='letters')rLetters(mc);
-  else if(sec==='numbers')rNumbers(mc);
+  else if(sec==='numbers'){mathLevel=1;mathCorrect=0;rNumbers(mc);}
   else if(sec==='travel')rTravel(mc);
   else if(sec==='games')rGames(mc);
   else if(sec==='music')rMusic(mc);
@@ -502,10 +504,14 @@ function showLetter(l){
   if('speechSynthesis'in window){const u=new SpeechSynthesisUtterance(w.replace(/[^\w\s]/gi,''));u.lang=lang==='es'?'es-ES':'en-US';u.rate=.8;speechSynthesis.speak(u);}
 }
 
-let mathLevel=1;
+let mathLevel=1,mathCorrect=0;
+const MATH_PER_LEVEL=5;
 function rNumbers(c){
   c.innerHTML=`<div class="nums-wrap">
-    <div class="lvl-row">${[1,2,3].map(l=>`<button class="lvl-btn${l===mathLevel?' active':''}" onclick="setMathLevel(${l},document.getElementById('mcontent'))">${T[lang]['mathLvl'+l]}</button>`).join('')}</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;background:#F5F0FF;border-radius:14px;padding:8px 14px;">
+      <div style="font-family:'Fredoka One',cursive;font-size:15px;color:var(--purple)">${T[lang]['mathLvl'+mathLevel]}</div>
+      <div style="display:flex;gap:4px;align-items:center">${[1,2,3,4,5].map(i=>`<div style="width:10px;height:10px;border-radius:50%;background:${i<=mathCorrect?'var(--mint)':'#ddd'}"></div>`).join('')}</div>
+    </div>
     <div class="num-big" id="nbig">1</div>
     <div class="dots" id="ndots"></div>
     <div class="num-grid">${[0,1,2,3,4,5,6,7,8,9,10].map(n=>`<button class="num-btn" onclick="showNum(${n})">${n}</button>`).join('')}</div>
@@ -513,7 +519,6 @@ function rNumbers(c){
   </div>`;
   showNum(1);newMath();
 }
-function setMathLevel(l,c){mathLevel=l;rNumbers(c);}
 function showNum(n){
   const el=document.getElementById('nbig');el.textContent=n;el.style.animation='none';el.offsetHeight;el.style.animation='bounce .4s ease';
   const d=document.getElementById('ndots');d.innerHTML='';
@@ -536,8 +541,42 @@ function newMath(){
 function chkMath(btn,v){
   document.querySelectorAll('.math-o').forEach(b=>b.disabled=true);
   const fb=document.getElementById('mf');
-  if(v===mathAns){btn.classList.add('ok');fb.textContent='¡Correcto! 🎉';fb.style.color='#06D6A0';setTimeout(newMath,1200);}
-  else{btn.classList.add('no');fb.textContent='¡Inténtalo! 💪';fb.style.color='#FF6B6B';setTimeout(()=>{document.querySelectorAll('.math-o').forEach(b=>{b.disabled=false;b.classList.remove('ok','no');});fb.textContent='';},1000);}
+  if(v===mathAns){
+    btn.classList.add('ok');
+    mathCorrect++;
+    updateMathDots();
+    if(mathCorrect>=MATH_PER_LEVEL&&mathLevel<3){
+      mathLevel++;mathCorrect=0;
+      fb.textContent=T[lang].mathLevelUp;fb.style.color='var(--purple)';
+      setTimeout(()=>{updateMathHeader();updateMathDots();newMath();},1600);
+    }else{
+      if(mathCorrect>=MATH_PER_LEVEL)fb.textContent=T[lang].mathMax;
+      else fb.textContent='¡Correcto! 🎉';
+      fb.style.color='#06D6A0';
+      setTimeout(()=>{updateMathDots();newMath();},1200);
+    }
+  }else{
+    btn.classList.add('no');fb.textContent='¡Inténtalo! 💪';fb.style.color='#FF6B6B';
+    setTimeout(()=>{document.querySelectorAll('.math-o').forEach(b=>{b.disabled=false;b.classList.remove('ok','no');});fb.textContent='';},1000);
+  }
+}
+function updateMathDots(){
+  document.querySelectorAll('.math-o').forEach(b=>b.disabled=false);
+  const dots=document.querySelectorAll('#nbig');//reuse trick: update dots via header
+  const hdr=document.querySelector('.nums-wrap>div:first-child');
+  if(hdr){
+    const lvlEl=hdr.querySelector('div:first-child');
+    const dotsEl=hdr.querySelector('div:last-child');
+    if(lvlEl)lvlEl.textContent=T[lang]['mathLvl'+mathLevel];
+    if(dotsEl)dotsEl.innerHTML=[1,2,3,4,5].map(i=>'<div style="width:10px;height:10px;border-radius:50%;background:'+(i<=mathCorrect?'var(--mint)':'#ddd')+'"></div>').join('');
+  }
+}
+function updateMathHeader(){
+  const hdr=document.querySelector('.nums-wrap>div:first-child');
+  if(hdr){
+    const lvlEl=hdr.querySelector('div:first-child');
+    if(lvlEl)lvlEl.textContent=T[lang]['mathLvl'+mathLevel];
+  }
 }
 
 function rTravel(c){
@@ -731,7 +770,7 @@ function startWbWord(c){
   html+='</div>';
   html+='<div id="wbfb" style="font-family:Fredoka One,cursive;font-size:20px;min-height:30px;text-align:center"></div>';
   html+='<div id="wbnxt" style="display:none;margin-top:4px">';
-  html+='<button onclick="wbWordIdx++;startWbWord(document.getElementById(\"mcontent\"))" style="padding:10px 20px;border-radius:13px;background:linear-gradient(135deg,var(--mint),var(--sky));color:white;border:none;cursor:pointer;font-family:Fredoka One,cursive;font-size:15px">'+T[lang].wbNext+'</button>';
+  html+='<button onclick="wbWordIdx++;startWbWord(document.getElementById(\'mcontent\'))" style="padding:10px 20px;border-radius:13px;background:linear-gradient(135deg,var(--mint),var(--sky));color:white;border:none;cursor:pointer;font-family:Fredoka One,cursive;font-size:15px">'+T[lang].wbNext+'</button>';
   html+='</div></div>';
   c.innerHTML=html;
 }
