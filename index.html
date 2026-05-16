@@ -715,31 +715,34 @@ const wbWords={
 };
 let wbCurrent=null,wbTyped=[],wbWordIdx=0;
 function rWordBuilder(c){wbWordIdx=Math.floor(Math.random()*wbWords[lang].length);startWbWord(c);}
+let wbShuffled=[];
 function startWbWord(c){
   const set=wbWords[lang];
   wbCurrent=set[wbWordIdx%set.length];
   wbTyped=[];
-  const shuffled=[...wbCurrent.word].sort(()=>Math.random()-.5);
-  c.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;gap:6px" class="fade-in">'
-    +'<div class="wb-emoji">'+wbCurrent.emoji+'</div>'
-    +'<div class="wb-hint">'+T[lang].wbHint+' '+wbCurrent.hint+'</div>'
-    +'<div class="wb-slots" id="wbslots">'+wbCurrent.word.split('').map((_,i)=>'<div class="wb-slot" id="wbs'+i+'"></div>').join('')+'</div>'
-    +'<div class="wb-letters" id="wbletters">'+shuffled.map((l,i)=>'<button class="wb-letter" id="wbl'+i+'" onclick="wbPick(''+l+'','+i+')">'+l+'</button>').join('')+'</div>'
-    +'<div style="display:flex;gap:9px;margin-top:2px">'
-    +'<button onclick="wbClear()" style="padding:8px 16px;border-radius:12px;background:#f0f0f0;border:none;cursor:pointer;font-family:'Fredoka One',cursive;font-size:14px">'+T[lang].wbClear+'</button>'
-    +'</div>'
-    +'<div id="wbfb" style="font-family:'Fredoka One',cursive;font-size:20px;min-height:30px;text-align:center"></div>'
-    +'<div id="wbnxt" style="display:none;margin-top:4px">'
-    +'<button onclick="wbWordIdx++;startWbWord(document.getElementById('mcontent'))" style="padding:10px 20px;border-radius:13px;background:linear-gradient(135deg,var(--mint),var(--sky));color:white;border:none;cursor:pointer;font-family:'Fredoka One',cursive;font-size:15px">'+T[lang].wbNext+'</button>'
-    +'</div></div>';
+  wbShuffled=[...wbCurrent.word].sort(()=>Math.random()-.5);
+  let html='<div style="display:flex;flex-direction:column;align-items:center;gap:6px" class="fade-in">';
+  html+='<div class="wb-emoji">'+wbCurrent.emoji+'</div>';
+  html+='<div class="wb-hint">'+T[lang].wbHint+' '+wbCurrent.hint+'</div>';
+  html+='<div class="wb-slots" id="wbslots">'+wbCurrent.word.split('').map((_,i)=>'<div class="wb-slot" id="wbs'+i+'"></div>').join('')+'</div>';
+  html+='<div class="wb-letters" id="wbletters">'+wbShuffled.map((l,i)=>'<button class="wb-letter" id="wbl'+i+'" onclick="wbPick('+i+')">'+l+'</button>').join('')+'</div>';
+  html+='<div style="display:flex;gap:9px;margin-top:2px">';
+  html+='<button onclick="wbClear()" style="padding:8px 16px;border-radius:12px;background:#f0f0f0;border:none;cursor:pointer;font-family:Fredoka One,cursive;font-size:14px">'+T[lang].wbClear+'</button>';
+  html+='</div>';
+  html+='<div id="wbfb" style="font-family:Fredoka One,cursive;font-size:20px;min-height:30px;text-align:center"></div>';
+  html+='<div id="wbnxt" style="display:none;margin-top:4px">';
+  html+='<button onclick="wbWordIdx++;startWbWord(document.getElementById(\"mcontent\"))" style="padding:10px 20px;border-radius:13px;background:linear-gradient(135deg,var(--mint),var(--sky));color:white;border:none;cursor:pointer;font-family:Fredoka One,cursive;font-size:15px">'+T[lang].wbNext+'</button>';
+  html+='</div></div>';
+  c.innerHTML=html;
 }
-function wbPick(l,btnIdx){
+function wbPick(idx){
   if(wbTyped.length>=wbCurrent.word.length)return;
+  const l=wbShuffled[idx];
   const pos=wbTyped.length;
-  wbTyped.push({l,btnIdx});
+  wbTyped.push({l,btnIdx:idx});
   const slot=document.getElementById('wbs'+pos);
   if(slot){slot.textContent=l;slot.classList.add('filled');}
-  const btn=document.getElementById('wbl'+btnIdx);if(btn)btn.disabled=true;
+  const btn=document.getElementById('wbl'+idx);if(btn)btn.disabled=true;
   if(wbTyped.length===wbCurrent.word.length)checkWbWord();
 }
 function checkWbWord(){
@@ -806,11 +809,11 @@ function rWordSearch(c){
   html+='<div class="ws-wordlist" id="wswl">'+wsGD.placed.map(p=>'<div class="ws-word" id="wsw-'+p.word+'">'+(em[p.word]||'')+' '+p.word+'</div>').join('')+'</div>';
   html+='<div style="font-size:11px;font-weight:700;color:#aaa;margin-bottom:2px">'+T[lang].wsHint+'</div>';
   html+='<div class="ws-grid" style="grid-template-columns:repeat('+WS+',32px)" id="wsgrid"></div>';
-  html+='<div id="wsfb" style="font-family:'Fredoka One',cursive;font-size:17px;min-height:26px;text-align:center"></div>';
+  html+='<div id="wsfb" style="font-family:Fredoka One,cursive;font-size:17px;min-height:26px;text-align:center"></div>';
   html+='<div id="wswin" style="display:none;text-align:center;padding:12px">';
   html+='<div style="font-size:64px">🏆</div>';
-  html+='<div style="font-family:'Fredoka One',cursive;font-size:22px;color:var(--purple)">'+T[lang].wsWin+'</div>';
-  html+='<button onclick="rWordSearch(document.getElementById('mcontent'))" style="margin-top:10px;padding:10px 20px;border-radius:13px;background:var(--purple);color:white;border:none;cursor:pointer;font-family:'Fredoka One',cursive;font-size:15px">'+T[lang].newgame+' 🔄</button>';
+  html+='<div style="font-family:Fredoka One,cursive;font-size:22px;color:var(--purple)">'+T[lang].wsWin+'</div>';
+  html+='<button onclick="rWordSearch(document.getElementById(\"mcontent\"))" style="margin-top:10px;padding:10px 20px;border-radius:13px;background:var(--purple);color:white;border:none;cursor:pointer;font-family:Fredoka One,cursive;font-size:15px">'+T[lang].newgame+' 🔄</button>';
   html+='</div></div>';
   c.innerHTML=html;
   const grid=document.getElementById('wsgrid');
